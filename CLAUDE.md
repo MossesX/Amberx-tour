@@ -12,8 +12,8 @@ It opens by explaining the goal, then tours the apps, then shows how everything 
   `prefers-color-scheme`, `prefers-reduced-motion` respected. Checked in Chromium at 412x915 and 1280x800.
 - **Chapters:** 1 The goal, 2 The cast, 3 AmberX AXF, 4 Dev Console, 5 Build Pilot, 6 axHub, 7 Working together
   (incl. approvals to the phone), 8 Phone to VPS, 9 The apps, 10 Push to live, 11 Where it's all going (roadmap + end card).
-- **Not deployed yet:** the GitHub repo `MossesX/amberx-tour` (private) must exist before the first push, then
-  create the Coolify app (see README.md) and the `tour` DNS record.
+- **Pushed, not deployed yet:** `MossesX/amberx-tour` (private) holds it on `main`. Still to do: create the
+  Coolify app (see README.md) and the `tour` DNS record.
 - **Honesty rules in the content:** the five-minute app is a goal, not a measured result. Approvals reach the phone
   today by the apps polling axHub's feed (AXHub app every 30 s, console banner every 5 s); true server push is
   Coming. Web stacks in Build Pilot, the Asset Designer/Browser and axHub steps 4 to 9 are Coming or Planned.
