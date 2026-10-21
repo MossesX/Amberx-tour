@@ -1,0 +1,6 @@
+.git
+.gitignore
+Dockerfile
+*.md
+project.manifest.json
+_claude

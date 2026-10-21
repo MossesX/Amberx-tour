@@ -1,0 +1,39 @@
+{
+  "$manifest": "project-manifest@1",
+  "name": "amberx-tour",
+  "displayName": "AmberX Tour",
+  "description": "A ten-minute auto-playing guided walkthrough of the AmberX ecosystem (static site), live at tour.amberxai.com.",
+  "kind": "app",
+  "status": "active",
+  "version": "0.1.0",
+  "platforms": [
+    "web"
+  ],
+  "framework": {
+    "relation": "none"
+  },
+  "repo": {
+    "host": "github",
+    "owner": "MossesX",
+    "name": "amberx-tour",
+    "exists": true,
+    "visibility": "private",
+    "url": "https://github.com/MossesX/amberx-tour",
+    "defaultBranch": "main"
+  },
+  "location": {
+    "repo": "MossesX/amberx-tour",
+    "path": "."
+  },
+  "deploy": {
+    "url": "https://tour.amberxai.com",
+    "via": "coolify"
+  },
+  "data": {
+    "shared": []
+  },
+  "owners": [
+    "MossesX"
+  ],
+  "created": "2026-10-21"
+}
