@@ -61,7 +61,7 @@ recorder/script.mjs    the narration: chapters → scenes { say, act } (facts fr
 recorder/tts.mjs       Piper voice (en_US ryan high) → audio/<chapter>-<n>.wav + durations.json
 recorder/record.mjs    Playwright on the live sites, one video per chapter, each scene held for its voice clip;
                        signs in as axHub user `tour-recorder` from /root/.tour-recorder.env (random password made on
-                       the VPS, never shown); read-only, opens an existing Pilot project (TOUR_PROJECT, default "Tour demo")
+                       the VPS, never shown); creates/reuses the empty Pilot project "Tour demo" (Brett OK, never built); otherwise read-only
 recorder/assemble.mjs  ffmpeg → publish/walkthrough.mp4 (720p, narration) + walkthrough.vtt + chapters.json
 recorder/Dockerfile    recorder image (Playwright + ffmpeg + Piper); run.sh runs the three steps inside it
 index.html + js/player.js + css/player.css   the player: video, captions, chapter index, speed slider + presets

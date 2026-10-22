@@ -1,6 +1,6 @@
 // Records each chapter as its own video while the narration plays out in time: every scene runs its action,
 // then holds until its voice clip (from tts.mjs) has finished. Writes raw videos + a timeline for assemble.mjs.
-// Read-only on the live sites: it opens pages, menus, views and dialogs, and never saves or builds anything.
+// On the live sites it opens pages, menus, views and dialogs; the only write is the empty Pilot project "Tour demo".
 import { chromium } from "playwright";
 import { mkdirSync, readFileSync, writeFileSync, readdirSync, renameSync } from "node:fs";
 import { CHAPTERS } from "./script.mjs";
@@ -77,6 +77,13 @@ function helpers(page, log) {
       await page.locator("#u").pressSequentially(process.env.HUB_USER || "", { delay: 60 });
       await page.fill("#p", process.env.HUB_PASS || "");
       await signIn(page); await page.waitForTimeout(2500);
+    }),
+    // Brett's OK (Oct 22 2026): create the empty "Tour demo" Android project if it doesn't exist yet. Never built.
+    startDemoProject: (name) => soft(`start project ${name}`, async () => {
+      const existing = page.getByText(name, { exact: true }).filter({ visible: true });
+      if (await existing.count()) return press(existing.first(), 2500);
+      const f = visible(page.getByLabel("App name")); await moveTo(f); await f.pressSequentially(name, { delay: 70 });
+      await press(visible(page.getByRole("button", { name: /^Start .*project$/ })), 2500);
     }),
     openDemoProject: (name) => soft(`open project ${name}`, () => press(visible(page.getByText(name, { exact: true })), 2500)),
   };

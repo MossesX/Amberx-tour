@@ -1,6 +1,6 @@
 // The narrated walkthrough: chapters of scenes. Each scene has the words the voice says (`say`) and what the
-// browser does while it says them (`act`). Scenes only open and show things; Build Pilot's designer opens an
-// existing project (TOUR_PROJECT, default "Tour demo"); nothing is created or built. Facts come from the CLAUDE.md files of AmberX-AXF,
+// browser does while it says them (`act`). Scenes only open and show things; the one write is creating the
+// empty "Tour demo" project in Build Pilot (Brett's OK, Oct 22 2026; reused if it exists, never built). Facts come from the CLAUDE.md files of AmberX-AXF,
 // Build-Pilot and axHub; keep them in step when those change.
 
 const HUB = "https://axhub.amberxai.com";
@@ -78,7 +78,7 @@ export const CHAPTERS = [
       { say: "Now the heart of the purpose: Build Pilot, the no-code app designer.", act: (h) => h.point("text=Design an app") },
       { say: "Pick a stack. Android with Kotlin and Jetpack Compose is ready today. React, Next.js and Python desktop are planned.", act: (h) => h.point("text=Web (React)") },
       { say: "Each stack's plugins become the steps of the design. Build Pilot never writes app code itself. It composes a spec for the AmberX build engine.", act: (h) => h.point("text=Start Android project") },
-      { say: "Let us open a project in the designer.", act: (h) => h.openDemoProject(process.env.TOUR_PROJECT || "Tour demo") },
+      { say: "Let us start a demo project called Tour demo.", act: (h) => h.startDemoProject("Tour demo") },
     ],
   },
   {
