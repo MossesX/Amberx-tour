@@ -12,8 +12,12 @@ It opens by explaining the goal, then tours the apps, then shows how everything 
   `prefers-color-scheme`, `prefers-reduced-motion` respected. Checked in Chromium at 412x915 and 1280x800.
 - **Chapters:** 1 The goal, 2 The cast, 3 AmberX AXF, 4 Dev Console, 5 Build Pilot, 6 axHub, 7 Working together
   (incl. approvals to the phone), 8 Phone to VPS, 9 The apps, 10 Push to live, 11 Where it's all going (roadmap + end card).
-- **Pushed, not deployed yet:** `MossesX/amberx-tour` (private) holds it on `main`. Still to do: create the
-  Coolify app (see README.md) and the `tour` DNS record.
+- **Live (Oct 22 2026):** https://tour.amberxai.com. The repo is **public** (Brett's call, so the VPS can clone it).
+  Not a Coolify app: a plain container `amberx-tour` on Coolify's `coolify` network with Traefik labels (HTTPS via
+  the `letsencrypt` resolver, http redirects to https), built from a clone at `/opt/amberx-tour` on the VPS, the same
+  way Build Pilot runs. DNS: an A record `tour` added by Brett in hPanel. **No auto-deploy:** after pushing, redeploy
+  on the VPS with `git -C /opt/amberx-tour pull` + `docker build -t amberx-tour:latest /opt/amberx-tour`, then
+  re-run the container (`docker rm -f amberx-tour` and the same `docker run` with the Traefik labels).
 - **Honesty rules in the content:** the five-minute app is a goal, not a measured result. Approvals reach the phone
   today by the apps polling axHub's feed (AXHub app every 30 s, console banner every 5 s); true server push is
   Coming. Web stacks in Build Pilot, the Asset Designer/Browser and axHub steps 4 to 9 are Coming or Planned.
