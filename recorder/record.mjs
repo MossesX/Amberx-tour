@@ -65,7 +65,11 @@ function helpers(page, log) {
     esc: () => page.keyboard.press("Escape").then(() => page.waitForTimeout(400)),
     openMenu: (name) => soft(`menu ${name}`, () => press(visible(page.getByRole("button", { name, exact: true })), 900)),
     menuItem: (name) => soft(`menu item ${name}`, () => press(visible(page.locator("[role=menuitem], [role=menu] button, [role=menu] a").filter({ hasText: name })), 1800)),
-    menu: async (top, item) => { await h.esc(); await h.openMenu(top); await h.menuItem(item); },
+    // Reload first: a view or dialog left open by the previous item can sit over the menu.
+    menu: async (top, item) => {
+      await soft("reload", async () => { await page.reload({ waitUntil: "domcontentloaded" }); await page.waitForTimeout(2500); });
+      await h.openMenu(top); await h.menuItem(item);
+    },
     clickTimes: (sel, n, gap) => soft(`clickTimes ${sel}`, async () => {
       const l = visible(page.locator(sel)); await moveTo(l);
       for (let i = 0; i < n; i++) { await l.click({ timeout: 4000 }); await page.waitForTimeout(gap); }

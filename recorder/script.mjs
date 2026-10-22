@@ -30,7 +30,7 @@ export const CHAPTERS = [
     id: "console", title: "The Dev Console", start: CONSOLE,
     scenes: [
       { say: "The Dev Console is the control room for the AmberX framework. It runs the build engine, the plan and the build queue.", act: (h) => h.point("text=Plan") },
-      { say: "Across the top are live status pieces, each one a plugin: the Claude badge for the AI connection, the main build status, and the alerts bell.", act: (h) => h.point("text=Alerts") },
+      { say: "Across the top are live status pieces, each one a plugin: the Claude badge for the AI connection, the main build status, and the alerts bell.", act: (h) => h.point("button:has-text('Alerts')") },
       { say: "Banners report what needs attention: codebase changes still in progress, and setup issues found by the systems check, each with a fix button.", act: (h) => h.point("text=Fix…") },
       { say: "The home page shows the plan, the build queue, coverage, and the open project.", act: (h) => h.scroll(400) },
       { say: "The application menu reaches everything: Console, Builds, Framework, Plugins, Apps, View and Help.", act: (h) => h.scroll(-400).then(() => h.openMenu("Console")) },
@@ -50,12 +50,12 @@ export const CHAPTERS = [
     ],
   },
   {
-    id: "framework", title: "The AmberX AXF framework", start: CONSOLE,
+    id: "framework", title: "The AmberX AXF framework", start: PILOT, pre: (h) => h.view("Assets"),
     scenes: [
-      { say: "Underneath it all is the AmberX AXF framework. Every piece of the interface is an asset: color themes, style themes, layouts, menus, toolbars, banners, buttons and more.", act: (h) => h.point("text=Randomize all assets") },
-      { say: "Assets are hot-swappable. Step through color themes, and the whole console changes live, with no rebuild.", act: (h) => h.clickTimes("[aria-label='Next color-theme'], button:has-text('Next color-theme')", 2, 1200) },
-      { say: "Style themes and layouts swap the same way. The same asset files run on the web port and the Android port, which is why apps look and behave the same on both.", act: (h) => h.clickTimes("[aria-label='Next style-theme'], button:has-text('Next style-theme')", 1, 1500) },
-      { say: "Under Framework, Standards holds the project rules. Every project carries a manifest, and nothing is loaded or compiled without a valid one.", act: (h) => h.menu("Framework", "Standards") },
+      { say: "Underneath it all is the AmberX AXF framework. Every piece of the interface is an asset: color themes, style themes, layouts, menus, toolbars, banners, buttons and more.", act: (h) => h.point("text=Color theme") },
+      { say: "Assets are hot-swappable. Each slot has its options side by side, and swapping one changes the whole app live, with no rebuild.", act: (h) => h.scroll(500) },
+      { say: "Style themes, layouts, menus and toolbars swap the same way. The same asset files run on the web port and the Android port, which is why apps look and behave the same on both.", act: (h) => h.scroll(700) },
+      { say: "Under Framework, Standards holds the project rules. Every project carries a manifest, and nothing is loaded or compiled without a valid one.", act: (h) => h.go(CONSOLE).then(() => h.menu("Framework", "Standards")) },
     ],
   },
   {
@@ -82,7 +82,7 @@ export const CHAPTERS = [
     ],
   },
   {
-    id: "pilot-design", title: "Build Pilot: assemble by spec", start: null, continueFrom: "pilot-home",
+    id: "pilot-design", title: "Build Pilot: assemble by spec", start: PILOT, pre: (h) => h.openDemoProject("Tour demo"),
     scenes: [
       { say: "App setup names the app and picks a boilerplate to start from. Every boilerplate shows its screens, features, modules and libraries before you choose.", act: (h) => h.scroll(300) },
       { say: "A live preview floats beside the designer and follows every choice as you make it.", act: (h) => h.scroll(-300) },
