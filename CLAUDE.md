@@ -25,7 +25,23 @@ It opens by explaining the goal, then tours the apps, then shows how everything 
 - **Left out as unclear:** `patches.amberxai.com` (only appears as an example setting in axHub, no deploy recorded),
   the Dev Console MCP tool count (sources say 24 and 26), Hostinger as an API token holder (not set yet), anything
   about mosh internals (not in the sources).
-- **Next:** not recorded. Ask Brett.
+- **Next:** the narrated video walkthrough below.
+
+## Next: the narrated video walkthrough (Brett, Oct 22 2026)
+
+The slideshow above is a stopgap. What Brett actually wants, like the walkthrough on demo.amberxai.com
+(`/opt/axp-demo/html/walkthrough` on the VPS: a real browser recording with a voice, 720p MP4 parts, VTT/SRT
+captions, a chapter list and an index page):
+
+- **Scope:** the AmberX AXF framework, Dev Console, Build Pilot and axHub only. No Expense Tracker or ledger.
+- **Live:** record the real sites (console/pilot/axhub.amberxai.com) in a browser on the VPS, signed in from
+  `/root/.tour-recorder.env` (root-only, written by Brett; never in chat, repo or axHub logs). Show and open
+  things only: no builds, commits or other writes.
+- **Android approvals:** shown from Brett's real phone (AXHub app): he screen-records while Claude triggers a
+  harmless approval, then sends the video to splice in.
+- **Narrated:** a voice over the recording plus captions (offline Piper TTS is available from GitHub releases).
+- **Player:** chapter index, captions, and a **playback speed slider with presets** (e.g. 0.75x, 1x, 1.25x, 1.5x, 2x).
+- About 10 minutes. Publish at tour.amberxai.com, replacing the slideshow.
 
 ## Layout
 
