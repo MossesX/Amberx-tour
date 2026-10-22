@@ -25,7 +25,9 @@ It opens by explaining the goal, then tours the apps, then shows how everything 
 - **Left out as unclear:** `patches.amberxai.com` (only appears as an example setting in axHub, no deploy recorded),
   the Dev Console MCP tool count (sources say 24 and 26), Hostinger as an API token holder (not set yet), anything
   about mosh internals (not in the sources).
-- **Next:** the narrated video walkthrough below.
+- **Now (Oct 22 2026):** the front page is the narrated video walkthrough (see Video pipeline); the slideshow is at
+  `/slides/`. The site container mounts `/opt/amberx-tour-rec/publish` as `/video`, so a new recording goes live
+  as soon as it is assembled. Still to add: Brett's phone clip of an Android approval.
 
 ## Next: the narrated video walkthrough (Brett, Oct 22 2026)
 
@@ -54,7 +56,7 @@ captions, a chapter list and an index page):
 - **Player:** chapter index, captions, and a **playback speed slider with presets** (e.g. 0.75x, 1x, 1.25x, 1.5x, 2x).
 - About 10 minutes. Publish at tour.amberxai.com, replacing the slideshow.
 
-## Video pipeline (built Oct 22 2026, not yet recorded)
+## Video pipeline (live Oct 22 2026: first cut 8.7 min, 11 chapters; re-recording with fixes)
 
 ```
 recorder/script.mjs    the narration: chapters → scenes { say, act } (facts from the three source CLAUDE.md files)
