@@ -36,6 +36,14 @@ captions, a chapter list and an index page):
 - **Opening chapter = the purpose (Brett's words, Oct 22 2026):** build apps quickly, **assembled by spec**:
   pick features and pre-built libraries, optionally have **Claude add features**; **spec-driven instead of
   code-driven**. Show it on screen (Build Pilot's feature picking, libraries, "Add with Claude").
+- **Every developer feature (Brett, Oct 22 2026):** walk through all of them, not a highlight reel. In the
+  Console that includes the **Pending builds list** (builds parked until Fable is available, or built with Opus
+  now; Fable rebuilds), model picks, Projects/manifests/Standards, the project wizard, systems check, plugins and
+  Plugin Manager/catalog/switches, AI assistant, agent manager, live sessions, terminal, container access,
+  snapshots, theme manager, feature assistant, activity, alerts, approvals banner, build manager, codebase
+  changes, main build status, APK builds. Plus every Build Pilot step/plugin and every axHub page. Source list:
+  the bold headings in AmberX-AXF/CLAUDE.md, Build-Pilot/CLAUDE.md, axHub/CLAUDE.md. Longer than 10 min is
+  fine: the chapter index + speed slider make it navigable (the demo's walkthrough runs 71 min).
 - **Scope:** the AmberX AXF framework, Dev Console, Build Pilot and axHub only. No Expense Tracker or ledger.
 - **Live:** record the real sites (console/pilot/axhub.amberxai.com) in a browser on the VPS, signed in from
   `/root/.tour-recorder.env` (root-only, written by Brett; never in chat, repo or axHub logs). Show and open
