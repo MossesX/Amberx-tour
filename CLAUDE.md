@@ -33,6 +33,9 @@ The slideshow above is a stopgap. What Brett actually wants, like the walkthroug
 (`/opt/axp-demo/html/walkthrough` on the VPS: a real browser recording with a voice, 720p MP4 parts, VTT/SRT
 captions, a chapter list and an index page):
 
+- **Opening chapter = the purpose (Brett's words, Oct 22 2026):** build apps quickly, **assembled by spec**:
+  pick features and pre-built libraries, optionally have **Claude add features**; **spec-driven instead of
+  code-driven**. Show it on screen (Build Pilot's feature picking, libraries, "Add with Claude").
 - **Scope:** the AmberX AXF framework, Dev Console, Build Pilot and axHub only. No Expense Tracker or ledger.
 - **Live:** record the real sites (console/pilot/axhub.amberxai.com) in a browser on the VPS, signed in from
   `/root/.tour-recorder.env` (root-only, written by Brett; never in chat, repo or axHub logs). Show and open
