@@ -22,8 +22,17 @@ const page = await ctx.newPage();
 await page.goto("https://axhub.amberxai.com/auth/login?rd=/", { waitUntil: "domcontentloaded" });
 await page.fill("#u", process.env.HUB_USER || "");
 await page.fill("#p", process.env.HUB_PASS || "");
-await Promise.all([page.waitForLoadState("domcontentloaded"), page.click("form[action='/auth/login'] button")]);
-console.log("after sign-in:", new URL(page.url()).pathname);
+await page.click("form[action='/auth/login'] button");
+// Wait for the sign-in POST to finish and leave the login page; moving on earlier aborts it.
+await page.waitForURL((u) => !u.pathname.startsWith("/auth/login"), { timeout: 20000 }).catch(() => {});
+const after = new URL(page.url());
+console.log("after sign-in:", after.pathname, after.searchParams.get("err") || "");
+if (after.pathname.startsWith("/auth/login")) {
+  const msg = await page.locator(".err, .error, [role=alert]").allInnerTexts().catch(() => []);
+  console.log("sign-in failed:", msg.join(" | ") || "(no message shown)");
+  await browser.close();
+  process.exit(2);
+}
 
 const dump = () => page.evaluate(() => {
   const vis = (e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
