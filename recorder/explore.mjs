@@ -22,6 +22,9 @@ const page = await ctx.newPage();
 await page.goto("https://axhub.amberxai.com/auth/login?rd=/", { waitUntil: "domcontentloaded" });
 await page.fill("#u", process.env.HUB_USER || "");
 await page.fill("#p", process.env.HUB_PASS || "");
+// Diagnostics without values: lengths only, plus whether the browser thinks the form is valid.
+console.log("credential lengths:", (process.env.HUB_USER || "").length, (process.env.HUB_PASS || "").length,
+  "form valid:", await page.evaluate(() => document.querySelector("form[action='/auth/login']")?.checkValidity()));
 await page.click("form[action='/auth/login'] button");
 // Wait for the sign-in POST to finish and leave the login page; moving on earlier aborts it.
 await page.waitForURL((u) => !u.pathname.startsWith("/auth/login"), { timeout: 20000 }).catch(() => {});
@@ -29,7 +32,7 @@ const after = new URL(page.url());
 console.log("after sign-in:", after.pathname, after.searchParams.get("err") || "");
 if (after.pathname.startsWith("/auth/login")) {
   const msg = await page.locator(".err, .error, [role=alert]").allInnerTexts().catch(() => []);
-  console.log("sign-in failed:", msg.join(" | ") || "(no message shown)");
+  console.log("sign-in failed:", msg.join(" | ") || "(no message shown)", "url:", after.pathname + after.search.replace(/rd=[^&]*/, "rd=…"));
   await browser.close();
   process.exit(2);
 }
