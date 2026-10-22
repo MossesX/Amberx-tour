@@ -1,0 +1,120 @@
+// Records each chapter as its own video while the narration plays out in time: every scene runs its action,
+// then holds until its voice clip (from tts.mjs) has finished. Writes raw videos + a timeline for assemble.mjs.
+// Read-only on the live sites: it opens pages, menus, views and dialogs, and never saves or builds anything.
+import { chromium } from "playwright";
+import { mkdirSync, readFileSync, writeFileSync, readdirSync, renameSync } from "node:fs";
+import { CHAPTERS } from "./script.mjs";
+
+const OUT = process.env.OUT || "/out";
+const ONLY = (process.env.ONLY || "").split(",").filter(Boolean);
+const HUB = "https://axhub.amberxai.com";
+const SIZE = { width: 1280, height: 720 };
+const durations = JSON.parse(readFileSync(`${OUT}/durations.json`, "utf8"));
+mkdirSync(`${OUT}/raw`, { recursive: true });
+mkdirSync(`${OUT}/shots`, { recursive: true });
+
+// A visible pointer, so viewers can follow the mouse in the recording.
+const CURSOR = `addEventListener('DOMContentLoaded', () => {
+  const d = document.createElement('div');
+  d.style.cssText = 'position:fixed;left:0;top:0;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;' +
+    'background:rgba(255,140,0,.35);border:2px solid #ff8c00;z-index:2147483647;pointer-events:none;transition:transform .08s';
+  document.body.appendChild(d);
+  addEventListener('mousemove', (e) => { d.style.left = e.clientX + 'px'; d.style.top = e.clientY + 'px'; }, true);
+  addEventListener('mousedown', () => { d.style.transform = 'scale(.7)'; }, true);
+  addEventListener('mouseup', () => { d.style.transform = ''; }, true);
+});`;
+
+const browser = await chromium.launch();
+
+async function signIn(page) {
+  if (!page.url().includes("/auth/login")) await page.goto(`${HUB}/auth/login?rd=/`, { waitUntil: "domcontentloaded" });
+  await page.fill("#u", process.env.HUB_USER || "");
+  await page.fill("#p", process.env.HUB_PASS || "");
+  await page.click("form[action='/auth/login'] button");
+  await page.waitForURL((u) => !u.pathname.startsWith("/auth/login"), { timeout: 20000 });
+}
+
+// Sign in once and reuse the session for every chapter (except the one that shows signing in).
+{
+  const ctx = await browser.newContext({ viewport: SIZE });
+  const page = await ctx.newPage();
+  await signIn(page);
+  await ctx.storageState({ path: `${OUT}/state.json` });
+  await ctx.close();
+}
+
+function helpers(page, log) {
+  const soft = async (what, fn) => {
+    try { await fn(); } catch (e) { log.push(`  ! ${what}: ${e.message.split("\n")[0].slice(0, 140)}`); }
+  };
+  const visible = (loc) => loc.filter({ visible: true }).first();
+  const moveTo = async (loc) => {
+    await loc.scrollIntoViewIfNeeded({ timeout: 4000 });
+    const b = await loc.boundingBox();
+    if (b) await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 18 });
+  };
+  const press = async (loc, settle = 1500) => { await moveTo(loc); await loc.click({ timeout: 5000 }); await page.waitForTimeout(settle); };
+  const h = {
+    wait: (ms) => page.waitForTimeout(ms),
+    go: (url) => soft(`go ${url}`, async () => { await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 }); await page.waitForTimeout(2500); }),
+    point: (sel) => soft(`point ${sel}`, () => moveTo(visible(page.locator(sel)))),
+    scroll: (dy) => soft("scroll", async () => {
+      await page.mouse.move(SIZE.width / 2, SIZE.height / 2, { steps: 5 });
+      for (let i = 0; i < 6; i++) { await page.mouse.wheel(0, dy / 6); await page.waitForTimeout(80); }
+    }),
+    esc: () => page.keyboard.press("Escape").then(() => page.waitForTimeout(400)),
+    openMenu: (name) => soft(`menu ${name}`, () => press(visible(page.getByRole("button", { name, exact: true })), 900)),
+    menuItem: (name) => soft(`menu item ${name}`, () => press(visible(page.locator("[role=menuitem], [role=menu] button, [role=menu] a").filter({ hasText: name })), 1800)),
+    menu: async (top, item) => { await h.esc(); await h.openMenu(top); await h.menuItem(item); },
+    clickTimes: (sel, n, gap) => soft(`clickTimes ${sel}`, async () => {
+      const l = visible(page.locator(sel)); await moveTo(l);
+      for (let i = 0; i < n; i++) { await l.click({ timeout: 4000 }); await page.waitForTimeout(gap); }
+    }),
+    view: (name) => soft(`view ${name}`, () => press(visible(page.getByRole("button", { name, exact: true })), 1800)),
+    nextStep: () => soft("next step", async () => { await press(visible(page.getByRole("button", { name: /^Next:/ }))); await page.mouse.wheel(0, -2000); }),
+    signIn: () => soft("sign in", async () => {
+      await moveTo(page.locator("#u"));
+      await page.locator("#u").pressSequentially(process.env.HUB_USER || "", { delay: 60 });
+      await page.fill("#p", process.env.HUB_PASS || "");
+      await signIn(page); await page.waitForTimeout(2500);
+    }),
+    openDemoProject: (name) => soft(`open project ${name}`, () => press(visible(page.getByText(name, { exact: true })), 2500)),
+  };
+  return h;
+}
+
+const timeline = [];
+for (const ch of CHAPTERS) {
+  if (ONLY.length && !ONLY.includes(ch.id)) continue;
+  const dir = `${OUT}/raw/${ch.id}`;
+  const ctx = await browser.newContext({ viewport: SIZE, recordVideo: { dir, size: SIZE }, ...(ch.signedOut ? {} : { storageState: `${OUT}/state.json` }) });
+  await ctx.addInitScript(CURSOR);
+  const page = await ctx.newPage();
+  const t0 = Date.now();
+  const log = [`## ${ch.id}`];
+  const h = helpers(page, log);
+  if (ch.start) await h.go(ch.start);
+  if (ch.pre) await ch.pre(h);
+  const scenes = [];
+  for (let i = 0; i < ch.scenes.length; i++) {
+    const s = ch.scenes[i];
+    const dur = durations[`${ch.id}-${i}`] ?? 3;
+    const start = (Date.now() - t0) / 1000;
+    await Promise.race([s.act(h), page.waitForTimeout(Math.max(8000, dur * 1000))]).catch((e) => log.push(`  ! act ${i}: ${e.message}`));
+    const left = start + dur + 0.5 - (Date.now() - t0) / 1000;
+    if (left > 0) await page.waitForTimeout(left * 1000);
+    const end = (Date.now() - t0) / 1000;
+    scenes.push({ i, start, end, dur, say: s.say });
+    const heads = await page.evaluate(() => [...document.querySelectorAll("h1,h2")].filter((e) => e.getBoundingClientRect().height > 0)
+      .map((e) => e.innerText.trim()).slice(0, 4).join(" | ")).catch(() => "");
+    log.push(`  ${i} ${start.toFixed(1)}-${end.toFixed(1)}s  ${page.url().replace(/^https:\/\//, "")}  [${heads}]`);
+    await page.screenshot({ path: `${OUT}/shots/${ch.id}-${i}.jpg`, quality: 55 }).catch(() => {});
+  }
+  await ctx.close();
+  const webm = readdirSync(dir).find((f) => f.endsWith(".webm"));
+  renameSync(`${dir}/${webm}`, `${OUT}/raw/${ch.id}.webm`);
+  timeline.push({ id: ch.id, title: ch.title, scenes });
+  console.log(log.join("\n"));
+}
+writeFileSync(`${OUT}/timeline.json`, JSON.stringify(timeline, null, 1));
+await browser.close();

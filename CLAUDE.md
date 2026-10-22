@@ -54,6 +54,23 @@ captions, a chapter list and an index page):
 - **Player:** chapter index, captions, and a **playback speed slider with presets** (e.g. 0.75x, 1x, 1.25x, 1.5x, 2x).
 - About 10 minutes. Publish at tour.amberxai.com, replacing the slideshow.
 
+## Video pipeline (built Oct 22 2026, not yet recorded)
+
+```
+recorder/script.mjs    the narration: chapters → scenes { say, act } (facts from the three source CLAUDE.md files)
+recorder/tts.mjs       Piper voice (en_US ryan high) → audio/<chapter>-<n>.wav + durations.json
+recorder/record.mjs    Playwright on the live sites, one video per chapter, each scene held for its voice clip;
+                       signs in as axHub user `tour-recorder` from /root/.tour-recorder.env (random password made on
+                       the VPS, never shown); read-only, opens an existing Pilot project (TOUR_PROJECT, default "Tour demo")
+recorder/assemble.mjs  ffmpeg → publish/walkthrough.mp4 (720p, narration) + walkthrough.vtt + chapters.json
+recorder/Dockerfile    recorder image (Playwright + ffmpeg + Piper); run.sh runs the three steps inside it
+index.html + js/player.js + css/player.css   the player: video, captions, chapter index, speed slider + presets
+slides/                the old slideshow
+```
+On the VPS: `docker build -t amberx-tour-recorder /opt/amberx-tour/recorder`, then run it with
+`--env-file /root/.tour-recorder.env -v /opt/amberx-tour/recorder:/rec:ro -v /opt/amberx-tour-rec:/out` and `bash /rec/run.sh`.
+The site container mounts `/opt/amberx-tour-rec/publish` at `/usr/share/nginx/html/video` (read-only).
+
 ## Layout
 
 ```

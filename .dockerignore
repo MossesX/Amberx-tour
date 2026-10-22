@@ -4,3 +4,5 @@ Dockerfile
 *.md
 project.manifest.json
 _claude
+video
+recorder

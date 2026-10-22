@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0e0f14">
+<title>AmberX Tour</title>
+<meta name="description" content="A ten-minute, auto-playing guided tour of Brett's AmberX ecosystem: AXF, Dev Console, Build Pilot, axHub and how they connect.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff9a1f'/%3E%3Cpath d='M9 23 16 8l7 15h-4l-3-7-3 7z' fill='%230e0f14'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="brand"><span class="logo" aria-hidden="true"></span><span>AmberX tour</span></div>
+    <div class="chap-label" id="chapLabel"></div>
+  </header>
+
+  <main class="stage" id="stage">
+    <button class="edge edge-l" id="edgeL" aria-label="Previous scene"></button>
+    <section id="scene" class="scene" aria-live="off"></section>
+    <button class="edge edge-r" id="edgeR" aria-label="Next scene"></button>
+    <div class="flash" id="flash" aria-hidden="true"></div>
+  </main>
+
+  <footer class="controls">
+    <div class="bar" id="bar" role="slider" tabindex="0" aria-label="Tour progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div class="fill" id="fill"></div><div class="marks" id="marks"></div><div class="knob" id="knob"></div>
+    </div>
+    <div class="row">
+      <button class="btn" id="btnMenu" aria-label="Chapter menu" title="Chapters (M)">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <button class="btn" id="btnPrev" aria-label="Previous scene" title="Previous (Left arrow)">
+        <svg viewBox="0 0 24 24"><path d="M6 5v14M19 5 9 12l10 7z"/></svg></button>
+      <button class="btn play" id="btnPlay" aria-label="Pause" title="Play / pause (Space)"></button>
+      <button class="btn" id="btnNext" aria-label="Next scene" title="Next (Right arrow)">
+        <svg viewBox="0 0 24 24"><path d="M18 5v14M5 5l10 7-10 7z"/></svg></button>
+      <div class="time" id="time" aria-live="off">0:00 / 0:00</div>
+      <button class="btn" id="btnSpeak" aria-label="Narration off" aria-pressed="false" title="Narration (N)">
+        <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+    </div>
+  </footer>
+
+  <div class="sheet" id="sheet" hidden>
+    <div class="sheet-bg" id="sheetBg"></div>
+    <div class="sheet-panel" role="dialog" aria-label="Chapters">
+      <div class="sheet-head"><b>Chapters</b><button class="btn" id="sheetClose" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+      <ol id="chapList"></ol>
+    </div>
+  </div>
+</div>
+<noscript><p style="padding:24px;font:16px system-ui">This tour needs JavaScript.</p></noscript>
+<script src="../js/script.js"></script>
+<script src="../js/diagram.js"></script>
+<script src="../js/app.js"></script>
+</body>
+</html>
