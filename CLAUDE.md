@@ -56,7 +56,7 @@ captions, a chapter list and an index page):
 - **Player:** chapter index, captions, and a **playback speed slider with presets** (e.g. 0.75x, 1x, 1.25x, 1.5x, 2x).
 - About 10 minutes. Publish at tour.amberxai.com, replacing the slideshow.
 
-## Video pipeline (live Oct 22 2026: first cut 8.7 min, 11 chapters; re-recording with fixes)
+## Video pipeline (live Oct 22 2026: first cut 8.7 min, 11 chapters; Oct 23 fixes: console banners hidden while recording (minimized in the console chapter), menus walk submenus to the real pages, Pending builds view, closing chapter shows Pilot + axHub; needs a re-record on the VPS)
 
 ```
 recorder/script.mjs    the narration: chapters → scenes { say, act } (facts from the three source CLAUDE.md files)
