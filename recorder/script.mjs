@@ -27,11 +27,11 @@ export const CHAPTERS = [
     ],
   },
   {
-    id: "console", title: "The Dev Console", start: CONSOLE,
+    id: "console", title: "The Dev Console", start: CONSOLE, banners: "minimized",
     scenes: [
       { say: "The Dev Console is the control room for the AmberX framework. It runs the build engine, the plan and the build queue.", act: (h) => h.point("text=Plan") },
       { say: "Across the top are live status pieces, each one a plugin: the Claude badge for the AI connection, the main build status, and the alerts bell.", act: (h) => h.point("button:has-text('Alerts')") },
-      { say: "Banners report what needs attention: codebase changes still in progress, and setup issues found by the systems check, each with a fix button.", act: (h) => h.point("text=Fix…") },
+      { say: "Banners report what needs attention: codebase changes still in progress, and setup issues found by the systems check, each with a fix button.", act: (h) => h.point(".fx-banner-frame") },
       { say: "The home page shows the plan, the build queue, coverage, and the open project.", act: (h) => h.scroll(400) },
       { say: "The application menu reaches everything: Console, Builds, Framework, Plugins, Apps, View and Help.", act: (h) => h.scroll(-400).then(() => h.openMenu("Console")) },
       { say: "From the Console menu you can see approvals waiting on axHub, ask the AI assistant, or open a shell terminal on the server.", act: (h) => h.wait(2500).then(() => h.esc()) },
@@ -41,7 +41,7 @@ export const CHAPTERS = [
     id: "builds", title: "Builds, models and the pending list", start: CONSOLE,
     scenes: [
       { say: "The Builds menu is where work is tracked.", act: (h) => h.openMenu("Builds") },
-      { say: "Remaining builds is the pending build list: work that is parked until the right model is available, or that can be built with Opus now.", act: (h) => h.menuItem("Remaining builds") },
+      { say: "Pending builds is the pending build list: work that is parked until the right model is available, or that can be built with Opus now.", act: (h) => h.menuItem("Pending builds") },
       { say: "Every item has a status, the model it is pinned to, the date it was added or built, notes and sub prompts. Before any build starts, this list is checked.", act: (h) => h.scroll(400) },
       { say: "The rule for models is simple. Fable for the deepest work, like kernel internals and cross-port contracts. Opus for everything else. Sonnet only when Opus is clearly not needed.", act: (h) => h.scroll(-400) },
       { say: "Fable rebuilds lists everything first built with Opus that is waiting for a Fable rebuild, with its branch, a differences report and a brief to copy.", act: (h) => h.menu("Builds", "Fable rebuilds") },
@@ -55,7 +55,7 @@ export const CHAPTERS = [
       { say: "Underneath it all is the AmberX AXF framework. Every piece of the interface is an asset: color themes, style themes, layouts, menus, toolbars, banners, buttons and more.", act: (h) => h.point("text=Color theme") },
       { say: "Assets are hot-swappable. Each slot has its options side by side, and swapping one changes the whole app live, with no rebuild.", act: (h) => h.scroll(500) },
       { say: "Style themes, layouts, menus and toolbars swap the same way. The same asset files run on the web port and the Android port, which is why apps look and behave the same on both.", act: (h) => h.scroll(700) },
-      { say: "Under Framework, Standards holds the project rules. Every project carries a manifest, and nothing is loaded or compiled without a valid one.", act: (h) => h.go(CONSOLE).then(() => h.menu("Framework", "Standards")) },
+      { say: "Under Framework, Standards holds the project rules. Every project carries a manifest, and nothing is loaded or compiled without a valid one.", act: (h) => h.go(CONSOLE).then(() => h.menu("Framework", "Standards", "Projects")) },
     ],
   },
   {
@@ -64,11 +64,11 @@ export const CHAPTERS = [
       { say: "Almost everything you have seen is a plugin. The Plugins menu lists them all.", act: (h) => h.openMenu("Plugins") },
       { say: "The Plugin Manager shows every installed plugin, its version, what it hooks into, and lets you switch plugins on and off.", act: (h) => h.menuItem("Plugin Manager") },
       { say: "New plugins install from the shared plugin catalog on axHub, checked before they are installed.", act: (h) => h.menu("Plugins", "Install from the catalog…") },
-      { say: "The systems check tests the console's tokens, keys and connections: GitHub, the Anthropic API, Hostinger, Coolify and axHub.", act: (h) => h.menu("Plugins", "Systems check") },
+      { say: "The systems check tests the console's tokens, keys and connections: GitHub, the Anthropic API, Hostinger, Coolify and axHub.", act: (h) => h.menu("Plugins", "Systems check", "Systems check") },
       { say: "The theme manager rolls color, style and layout themes, with a token tree, locks and saved presets.", act: (h) => h.menu("Plugins", "Theme manager") },
       { say: "Snapshots take, compare and restore copies of a container's files, and a restore saves the current state first. Container access is the only part of the console allowed to reach other containers, through a locked-down proxy.", act: (h) => h.menu("Plugins", "Snapshots") },
-      { say: "The AI assistant and the agent manager bring Claude into the console: chat, agents with personas, skills and tools, and live sessions.", act: (h) => h.menu("Plugins", "Agents") },
-      { say: "MCP servers connects the console to outside tools and calls them, with a confirm step for anything destructive. The feature assistant drafts new plan entries from a plain description.", act: (h) => h.menu("Plugins", "MCP servers") },
+      { say: "The AI assistant and the agent manager bring Claude into the console: chat, agents with personas, skills and tools, and live sessions.", act: (h) => h.menu("Plugins", "Agents", "Agent manager") },
+      { say: "MCP servers connects the console to outside tools and calls them, with a confirm step for anything destructive. The feature assistant drafts new plan entries from a plain description.", act: (h) => h.menu("Plugins", "MCP servers", "MCP servers") },
       { say: "New project starts a project with a validated manifest from the start.", act: (h) => h.menu("Plugins", "New project") },
     ],
   },
@@ -121,11 +121,11 @@ export const CHAPTERS = [
   {
     id: "together", title: "How it fits together", start: CONSOLE,
     scenes: [
-      { say: "The pieces work as one. The Apps menu opens Build Pilot and axHub as tabs inside the console.", act: (h) => h.openMenu("Apps") },
-      { say: "The developer apps share one look, stored on axHub's data server. Change it in one app and the others follow, live.", act: (h) => h.esc() },
-      { say: "Build Pilot composes the spec, the console's build engine builds it, GitHub Actions makes the APK, and axHub's Apps page hands it to your phone.", act: (h) => h.wait(1500) },
-      { say: "And Claude reaches all of it through axHub, with a person approving anything that changes the world.", act: (h) => h.wait(1500) },
-      { say: "Coming next: web stacks in Build Pilot, a no-code asset designer, and push approvals from axHub. That is AmberX: apps assembled by spec, in minutes.", act: (h) => h.wait(2500) },
+      { say: "The pieces work as one. The Apps menu opens Build Pilot and axHub as tabs inside the console.", act: (h) => h.openMenu("Apps").then(() => h.menuItem("axHub", 1500)) },
+      { say: "The developer apps share one look, stored on axHub's data server. Change it in one app and the others follow, live.", act: (h) => h.esc().then(() => h.go(PILOT)).then(() => h.view("Assets")) },
+      { say: "Build Pilot composes the spec, the console's build engine builds it, GitHub Actions makes the APK, and axHub's Apps page hands it to your phone.", act: (h) => h.go(`${HUB}/apps`) },
+      { say: "And Claude reaches all of it through axHub, with a person approving anything that changes the world.", act: (h) => h.go(`${HUB}/auth/admin/approvals`) },
+      { say: "Coming next: web stacks in Build Pilot, a no-code asset designer, and push approvals from axHub. That is AmberX: apps assembled by spec, in minutes.", act: (h) => h.go(PILOT) },
     ],
   },
 ];

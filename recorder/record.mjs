@@ -24,6 +24,20 @@ const CURSOR = `addEventListener('DOMContentLoaded', () => {
   addEventListener('mouseup', () => { d.style.transform = ''; }, true);
 });`;
 
+// Console banners (setup issues, keys, what's new…) would cover half of every console shot. Hidden for the
+// recording through the console's own banner settings (this browser only), minimized in the chapter that talks
+// about them. Never touches the server or other devices.
+const BANNERS = ["activity", "approvals", "build-manager", "claude-handoff", "codebase-changes", "push-banner", "keys-needed", "systems-check", "whats-new"];
+const bannerPrefs = (mode) => `(() => {
+  if (location.hostname !== "console.amberxai.com") return;
+  const key = "axf:axf-console:settings";
+  let v = {}; try { v = JSON.parse(localStorage.getItem(key) || "{}") || {}; } catch {}
+  const prefs = {};
+  for (const id of ${JSON.stringify(BANNERS)}) prefs[id] = ${mode === "minimized" ? '{ launch: "minimized" }' : "{ show: false }"};
+  v["axf.banners.prefs"] = prefs;
+  try { localStorage.setItem(key, JSON.stringify(v)); } catch {}
+})();`;
+
 const browser = await chromium.launch();
 
 async function signIn(page) {
@@ -64,11 +78,15 @@ function helpers(page, log) {
     }),
     esc: () => page.keyboard.press("Escape").then(() => page.waitForTimeout(400)),
     openMenu: (name) => soft(`menu ${name}`, () => press(visible(page.getByRole("button", { name, exact: true })), 900)),
-    menuItem: (name) => soft(`menu item ${name}`, () => press(visible(page.locator("[role=menuitem], [role=menu] button, [role=menu] a").filter({ hasText: name })), 1800)),
-    // Reload first: a view or dialog left open by the previous item can sit over the menu.
-    menu: async (top, item) => {
+    // A menu item by the start of its label; the deepest open one wins (a submenu's items come after its parent).
+    menuItem: (name, settle = 1800) => soft(`menu item ${name}`, () => press(page.locator("[role=menuitem], [role=menuitemcheckbox]")
+      .filter({ visible: true }).filter({ hasText: new RegExp("^\\s*" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) }).last(), settle)),
+    // Reload first: a view or dialog left open by the previous item can sit over the menu. Then walk the path
+    // (submenus open on click), ending on the page or dialog the last item opens.
+    menu: async (top, ...path) => {
       await soft("reload", async () => { await page.reload({ waitUntil: "domcontentloaded" }); await page.waitForTimeout(2500); });
-      await h.openMenu(top); await h.menuItem(item);
+      await h.openMenu(top);
+      for (let i = 0; i < path.length; i++) await h.menuItem(path[i], i < path.length - 1 ? 700 : 1800);
     },
     clickTimes: (sel, n, gap) => soft(`clickTimes ${sel}`, async () => {
       const l = visible(page.locator(sel)); await moveTo(l);
@@ -100,6 +118,7 @@ for (const ch of CHAPTERS) {
   const dir = `${OUT}/raw/${ch.id}`;
   const ctx = await browser.newContext({ viewport: SIZE, recordVideo: { dir, size: SIZE }, ...(ch.signedOut ? {} : { storageState: `${OUT}/state.json` }) });
   await ctx.addInitScript(CURSOR);
+  await ctx.addInitScript(bannerPrefs(ch.banners));
   const page = await ctx.newPage();
   const t0 = Date.now();
   const log = [`## ${ch.id}`];
