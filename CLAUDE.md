@@ -56,7 +56,7 @@ captions, a chapter list and an index page):
 - **Player:** chapter index, captions, and a **playback speed slider with presets** (e.g. 0.75x, 1x, 1.25x, 1.5x, 2x).
 - About 10 minutes. Publish at tour.amberxai.com, replacing the slideshow.
 
-## Video pipeline (live Oct 22 2026: first cut 8.7 min, 11 chapters; Oct 23 fixes: console banners hidden while recording (minimized in the console chapter), menus walk submenus to the real pages, Pending builds view, closing chapter shows Pilot + axHub; needs a re-record on the VPS)
+## Video pipeline (live Oct 22 2026: first cut 8.7 min, 11 chapters; Oct 23 fixes: console banners hidden while recording (minimized in the console chapter), menus walk submenus to the real pages, Pending builds view, closing chapter shows Pilot + axHub; re-recorded Oct 23 into /opt/amberx-tour-rec/publish, but menus stayed open: the recorder image's Playwright 1.49.1 ignores `filter({ visible: true })` (1.51+), so clicks hit hidden items; fixed with `visible=true` locators, submenu items now go on to their first entry, Pilot views skip the menu bar's same-named buttons; needs another re-record. tour.amberxai.com is being repurposed for Walkthrough Studio, so don't touch the site container)
 
 ```
 recorder/script.mjs    the narration: chapters → scenes { say, act } (facts from the three source CLAUDE.md files)

@@ -61,7 +61,7 @@ function helpers(page, log) {
   const soft = async (what, fn) => {
     try { await fn(); } catch (e) { log.push(`  ! ${what}: ${e.message.split("\n")[0].slice(0, 140)}`); }
   };
-  const visible = (loc) => loc.filter({ visible: true }).first();
+  const visible = (loc) => loc.locator("visible=true").first();
   const moveTo = async (loc) => {
     await loc.scrollIntoViewIfNeeded({ timeout: 4000 });
     const b = await loc.boundingBox();
@@ -78,21 +78,38 @@ function helpers(page, log) {
     }),
     esc: () => page.keyboard.press("Escape").then(() => page.waitForTimeout(400)),
     openMenu: (name) => soft(`menu ${name}`, () => press(visible(page.getByRole("button", { name, exact: true })), 900)),
-    // A menu item by the start of its label; the deepest open one wins (a submenu's items come after its parent).
-    menuItem: (name, settle = 1800) => soft(`menu item ${name}`, () => press(page.locator("[role=menuitem], [role=menuitemcheckbox]")
-      .filter({ visible: true }).filter({ hasText: new RegExp("^\\s*" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) }).last(), settle)),
+    // A menu item by the start of its label ("…" and "..." match either way); the deepest open one wins (a
+    // submenu's items come after its parent). With leaf set, an item that only opens a submenu goes one step on
+    // to the submenu's first item, so the scene ends on a real page or dialog, not an open menu.
+    menuItem: (name, settle = 1800, leaf = true) => soft(`menu item ${name}`, async () => {
+      const label = name.replace(/(…|\.\.\.)$/, "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const item = page.locator("[role=menuitem], [role=menuitemcheckbox]").locator("visible=true")
+        .filter({ hasText: new RegExp("^\\s*" + label) }).last();
+      const el = await item.elementHandle({ timeout: 5000 });
+      await press(item, leaf ? 900 : settle);
+      if (!leaf) return;
+      const sub = await el.getAttribute("aria-haspopup").catch(() => null);
+      if (sub && sub !== "false") {
+        log.push(`  · ${name} opens a submenu: taking its first item`);
+        await press(page.locator("[role=menu]").locator("visible=true").last()
+          .locator("[role=menuitem], [role=menuitemcheckbox]").locator("visible=true").first(), settle);
+      } else await page.waitForTimeout(Math.max(0, settle - 900));
+    }),
     // Reload first: a view or dialog left open by the previous item can sit over the menu. Then walk the path
     // (submenus open on click), ending on the page or dialog the last item opens.
     menu: async (top, ...path) => {
       await soft("reload", async () => { await page.reload({ waitUntil: "domcontentloaded" }); await page.waitForTimeout(2500); });
       await h.openMenu(top);
-      for (let i = 0; i < path.length; i++) await h.menuItem(path[i], i < path.length - 1 ? 700 : 1800);
+      for (let i = 0; i < path.length; i++) await h.menuItem(path[i], i < path.length - 1 ? 700 : 1800, i === path.length - 1);
     },
     clickTimes: (sel, n, gap) => soft(`clickTimes ${sel}`, async () => {
       const l = visible(page.locator(sel)); await moveTo(l);
       for (let i = 0; i < n; i++) { await l.click({ timeout: 4000 }); await page.waitForTimeout(gap); }
     }),
-    view: (name) => soft(`view ${name}`, () => press(visible(page.getByRole("button", { name, exact: true })), 1800)),
+    // A view button, not a menu-bar button of the same name (Build Pilot's menu bar has its own "Assets" menu).
+    // The last match also skips a menu bar placed ahead of the views.
+    view: (name) => soft(`view ${name}`, () => press(page.getByRole("button", { name, exact: true })
+      .and(page.locator(":not([aria-haspopup])")).locator("visible=true").last(), 1800)),
     nextStep: () => soft("next step", async () => { await press(visible(page.getByRole("button", { name: /^Next:/ }))); await page.mouse.wheel(0, -2000); }),
     signIn: () => soft("sign in", async () => {
       await moveTo(page.locator("#u"));
@@ -102,7 +119,7 @@ function helpers(page, log) {
     }),
     // Brett's OK (Oct 22 2026): create the empty "Tour demo" Android project if it doesn't exist yet. Never built.
     startDemoProject: (name) => soft(`start project ${name}`, async () => {
-      const existing = page.getByText(name, { exact: true }).filter({ visible: true });
+      const existing = page.getByText(name, { exact: true }).locator("visible=true");
       if (await existing.count()) return press(existing.first(), 2500);
       const f = visible(page.getByLabel("App name")); await moveTo(f); await f.pressSequentially(name, { delay: 70 });
       await press(visible(page.getByRole("button", { name: /^Start .*project$/ })), 2500);
